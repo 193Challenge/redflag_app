@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+    <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+    <link rel="stylesheet" href="css/cadastroVoluntario.css">
+
+</head>
+
+<body>
+    <div class="container" style="width: 500px">
+        <!-- Content here -->
+        <div class="panel panel-primary">
+            <div class="row text-center">
+                <img src="./img/emblema.jpg">
+            </div>
+            <div align="center" class="panel-heading">Cadastro de Cidadão</div>
+            <p>
+        </div>
+        <div class="panel content">
+            <div class="card">
+                <div class="card-header">
+
+                </div>
+                <div class="card-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="exampleInputEmail1">Nome Completo</label>
+                            <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Nome Completo">
+                        </div>
+                        <div class="form-group">
+                            <label for="exampleInputPassword1">Senha</label>
+                            <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Senha com mais de 8 caracteres">
+                        </div>
+                        <div class="form-group">
+                            <label for="exampleInputPassword1">Número Celular</label>
+                            <input type="password" class="form-control" id="exampleInputPassword1" placeholder="11 9999-9999">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="exampleInputPassword1">Data nascimento</label>
+                            <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Data nascimetno">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="exampleInputPassword1">CPF</label>
+                            <input type="password" class="form-control" id="exampleInputPassword1" placeholder="CPF">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Cadastrar</button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+
+
+
+        <script>
+            function cadastro() {
+                $("#cadastro").submit(function(e) {
+                    return false;
+                });
+
+                //METODO DE CADASTRO
+                $.ajax({
+                    url: 'http://localhost:3000/user',
+                    method: 'POST',
+                    type: 'JSON',
+                    data: {
+                        name: $('#nomeUsuario').val(),
+                        phone: $('#telefoneUsuario').val(),
+                        cpf: $('#cpfUsuario').val(),
+                        isVoluntary: false,
+                        password: $('#password').val(),
+                        birthday: $('#birthday').val()
+                    },
+                    success: (data, textStatus, xhr) => {
+                        localStorage.setItem('code', data.data.code)
+                        localStorage.setItem('user_id', data.data.user_id)
+                        localStorage.setItem('name', $('#nomeUsuario').val())
+                        window.location.href = 'ConfirmarCadastro.html'
+                    },
+                    error: (error) => {
+                        alert('Erro. Tente novamente.');
+
+                    }
+                });
+            }
+        </script>
+
+</html>

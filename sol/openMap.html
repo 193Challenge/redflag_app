@@ -1,0 +1,67 @@
+<!DOCTYPE HTML>
+<title>OpenLayers Simplest Example</title>
+<button onclick="getButton()">PEGA AQUI</button>
+<div id="demoMap" style="height:500px"></div>
+<span class="address"></span>
+
+<script src="./js/jquery-3.3.1.min.js"></script>
+<script src="./js/OpenLayers-2.13.1/OpenLayers.js"></script>
+<script>
+    var myLat;
+    var myLong;
+    getLocation();
+
+    function getLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(showPosition);
+        } else {
+            x.innerHTML = "Geolocation is not supported by this browser.";
+        }
+
+    }
+
+    function showPosition(position) {
+        myLat = parseFloat(position.coords.latitude);
+        myLong = parseFloat(position.coords.longitude);
+        console.log(position.coords)
+    }
+
+    function initMap() {
+
+        map = new OpenLayers.Map("demoMap");
+        map.addLayer(new OpenLayers.Layer.OSM());
+
+        var lonLat = new OpenLayers.LonLat(myLong, myLat)
+            .transform(
+                new OpenLayers.Projection("EPSG:4326"), // transform from WGS 1984
+                map.getProjectionObject() // to Spherical Mercator Projection
+            );
+        console.log(lonLat)
+        var zoom = 18;
+
+        var markers = new OpenLayers.Layer.Markers("Markers");
+        map.addLayer(markers);
+
+        markers.addMarker(new OpenLayers.Marker(lonLat));
+        map.setCenter(lonLat, zoom);
+
+        $.ajax({
+            url: 'https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=' + myLat + '&lon=' + myLong,
+            method: 'GET',
+            type: 'JSON',
+            success: (data, textStatus, xhr) => {
+                console.log(JSON.stringify(data))
+                $('.address').append(data.display_name)
+            },
+            error: (error) => {
+                alert('Erro. Tente novamente.');
+
+            }
+        })
+
+    }
+
+    setTimeout(function() {
+        initMap();
+    }, 1000)
+</script>

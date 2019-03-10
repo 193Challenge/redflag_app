@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="css/cadastro.css">
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+
+    <!-- <script src="js/cadastro.js"></script> -->
+</head>
+
+<body align="center">
+    <div class="row text-center">
+        <img src="./img/emblema.jpg">
+    </div>
+    <span class="titulo"></span>
+    <form id="formValida">
+        <div id="validar">
+            <table>
+                <!-- campo para que o usuário possa inserir o código de validação -->
+                <input type="number" name="codValidacao" size="40" placeholder="Informe o código de validação" value="" id="codValidacao" required>
+            </table>
+            <!-- botão para confirmar a operação -->
+            <p></p>
+            <button class="btn btn-success" onclick="validaCode()" value="VALIDAR">VALIDAR</button>
+        </div>
+
+    </form>
+
+</body>
+<script>
+    $('.titulo').append('Anderson, confirme seu cadastro informando o código enviado para seu número de celular.')
+
+    function validaCode() {
+        $("#formValida").submit(function(e) {
+            return false;
+        });
+
+        //METODO DE CADASTRO
+        $.ajax({
+            url: 'http://localhost:3000/user/code',
+            method: 'POST',
+            type: 'JSON',
+            data: {
+                user_id: localStorage.getItem('user_id'),
+                code: $("#codValidacao").val()
+            },
+            success: (data, textStatus, xhr) => {
+                localStorage.setItem('x-access-token', data.data.token)
+                window.location.href = "home.html"
+            },
+            error: (error) => {
+                alert('Erro. Tente novamente.');
+
+            }
+        });
+    }
+</script>
+
+</html>
