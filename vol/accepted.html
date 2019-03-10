@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Home</title>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.2/css/bootstrap3/bootstrap-switch.min.css" rel="stylesheet" />
+        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+        <style type="text/css">
+            .login-form {
+                width: 340px;
+                margin: 50px auto;
+            }
+            
+            .login-form form {
+                margin-bottom: 15px;
+                background: #FFFFFF;
+                box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+                padding: 20px;
+            }
+            
+            .login-form h2 {
+                margin: 0 0 15px;
+            }
+            
+            img {
+                height: 50px;
+                justify-content: center;
+                align-items: center;
+                padding: 5px;
+            }
+            
+            #map {
+                height: 200px;
+                /* The height is 400 pixels */
+                width: 100%;
+                /* The width is the width of the web page */
+            }
+        </style>
+    </head>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <script src="./js/OpenLayers-2.13.1/OpenLayers.js"></script>
+
+    <body>
+
+        <div align="center" class="login-form">
+            <form id="formValida">
+                <img class="text-center" src="./img/emblema.jpg" height="10%">
+                <p>
+
+                    <div id="map"></div>
+                    <div class="alert alert-primary text-left" role="alert">
+                        <p>
+                            <b>Vitíma: </b> Josué Nunes, 46 Anos, Diabético, faz uso medicamento controlado.
+                        </p>
+                        <p>
+                            <b>Local da Ocorrência: </b>
+                            <p class="address"></p>
+                        </p>
+                        <p>
+                            <b>Sua distância até à vitíma:</b> 800m
+                        </p>
+                        <p>
+                            <b>Tipo de solicitação: </b> Incêndio
+                        </p>
+                        <p>
+                            <b>Detalhes da Ocorrência:</b> Vítima informa estar em sua residência.
+                        </p>
+                        <p>
+                            <b>Apoio para Central de Atendimento</b>
+                            <span class="btn btn-info btn-block" onclick="showModal()">Enviar Foto</span>
+                            <span class="btn btn-success btn-block" onclick="showModal()">Enviar Mensagem</span>
+                        </p>
+                    </div>
+                    <p></p>
+                    <div class="form">
+                        <span class="btn btn-danger btn-block" onclick="showModal()">ENCERRAR</span>
+                        </br>
+                    </div>
+
+        </div>
+        </form>
+        </div>
+
+        <!-- Modal -->
+        <div class="modal" id="accept" tabindex="-1" role="dialog" aria-labelledby="accept" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Você pode atender a este chamado?</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    
+                  </button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <input type="hidden" name="typeOcc" id="typeOcc">
+                        <button type="button" class="btn btn-warning btn-lg btn-block" data-dismiss="modal">SIM</button>
+                        <button type="button" class="btn btn-info btn-lg btn-block" data-dismiss="modal">NÃO</button>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">CANCELAR</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            function showMap() {
+                $("#formValida").submit(function(e) {
+                    return false;
+                });
+                $('#map').hide()
+            }
+
+            function showModal() {
+                $('#accept').modal('show')
+            }
+
+            var myLat;
+            var myLong;
+            var address;
+
+            getLocation()
+
+            function getLocation() {
+                if ("geolocation" in navigator) {
+                    navigator.geolocation.getCurrentPosition(showPosition);
+                } else {
+                    alert('Geolocalização indisponível no aparelho')
+
+                }
+            }
+
+            function showPosition(position) {
+                myLat = parseFloat(position.coords.latitude);
+                myLong = parseFloat(position.coords.longitude);
+            }
+
+            function initMap() {
+                map = new OpenLayers.Map("map");
+                map.addLayer(new OpenLayers.Layer.OSM());
+
+                var lonLat = new OpenLayers.LonLat(myLong, myLat)
+                    .transform(
+                        new OpenLayers.Projection("EPSG:4326"), // transform from WGS 1984
+                        map.getProjectionObject() // to Spherical Mercator Projection
+                    );
+                console.log(lonLat)
+                var zoom = 10;
+
+                var markers = new OpenLayers.Layer.Markers("Markers");
+                map.addLayer(markers);
+
+                markers.addMarker(new OpenLayers.Marker(lonLat));
+                map.setCenter(lonLat, zoom);
+
+
+
+            }
+
+            function decodeGeo(lat, long) {
+                $.ajax({
+                    url: 'https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=' + lat + '&lon=' + long,
+                    method: 'GET',
+                    type: 'JSON',
+                    success: (data, textStatus, xhr) => {
+                        $('.address').append(
+                            data.address.road +
+                            " Número: " + data.address.house_number +
+                            " Bairro: " + data.address.suburb +
+                            " Cidade: " + data.address.city +
+                            " CEP: " + data.address.postcode)
+                    },
+                    error: (error) => {
+
+                        alert('Erro. Tente novamente.');
+                    }
+                })
+            }
+
+            setTimeout(function() {
+                initMap();
+                decodeGeo(myLat, myLong);
+            }, 2000)
+        </script>
+    </body>
+
+</html>
